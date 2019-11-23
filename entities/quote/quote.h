@@ -23,4 +23,4 @@ private:
   double aggregated_amount_ = 0;
 };
 
-}  // market::entities
+}  // namespace market::entities

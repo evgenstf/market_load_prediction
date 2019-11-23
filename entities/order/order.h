@@ -29,4 +29,4 @@ private:
   std::string uuid_;
 };
 
-}  // market::entities
+}  // namespace market::entities

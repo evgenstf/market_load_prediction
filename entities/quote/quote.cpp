@@ -22,4 +22,4 @@ void Quote::pop() {
   orders_.pop();
 }
 
-}  // market::entities
+}  // namespace market::entities
