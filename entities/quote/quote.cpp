@@ -6,6 +6,7 @@ namespace market::entities {
 
 void Quote::push(Order&& order) {
   assert(order.price() == price());
+  assert(order.type() == Order::Type::Limit);
   aggregated_amount_ += order.amount();
   orders_.push(order);
 }
