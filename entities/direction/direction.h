@@ -1,10 +1,11 @@
 #pragma once
+#include <cstdint>
 
 namespace market::entities {
 
 enum Direction : uint8_t {
-  BID = 0,
-  ASK = 1
+  Bid = 0,
+  Ask = 1
 };
 
 }  // namespace market::entities
