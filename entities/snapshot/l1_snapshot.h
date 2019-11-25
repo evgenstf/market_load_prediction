@@ -1,9 +1,10 @@
 #pragma once
 #include "../direction/direction.h"
+#include <utility>
 
 namespace market::entities {
 
-class L1OrderBookSnapshot {
+class L1Snapshot {
 public:
   struct Quote {
     double price;
