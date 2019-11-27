@@ -1,6 +1,12 @@
 #pragma once
+#include "../entities/snapshot/l1_snapshot.h"
+#include "../entities/quote/quote.h"
+#include "../entities/trade/trade.h"
+#include "../entities/order/order.h"
 
 #include <map>
+
+namespace market::matching_engine {
 
 class MatchingEngine {
 public:
@@ -8,18 +14,19 @@ public:
     size_t l2_snapshot_depth;
   };
 
-  using DirectionContainer = std::map<double, Quote>;
+  using DirectionContainer = std::map<double, entities::Quote>;
   using OrderBook = DirectionContainer[2];
 
-  MatchingEngine(const MatchingEngineParameters& parameters)
+  MatchingEngine(Parameters parameters);
 
-  std::vector<Trade> add_order(Order&& order);
+  std::vector<entities::Trade> add_order(entities::Order&& order);
 
-  L1Snapshot build_l1_snapshot() const;
-  L2Snapshot build_l2_snapshot() const;
+  entities::L1Snapshot build_l1_snapshot() const;
 
 private:
   const Parameters parameters_;
 
   OrderBook order_book_;
 };
+
+}  // namespace market::matching_engine
