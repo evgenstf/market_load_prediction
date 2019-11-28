@@ -4,14 +4,14 @@
 using namespace market::entities;
 
 TEST(Quote, NoOrders) {
-  Quote quote(/*price =*/ 1000);
+  Quote quote(/*price =*/ 1000, Direction::Bid);
   ASSERT_EQ(0, quote.aggregated_amount());
 }
 
 TEST(Quote, AddAndRemoveOneOrder) {
-  Quote quote(/*price =*/ 1000);
+  Quote quote(/*price =*/ 1000, Direction::Bid);
 
-  quote.push(Order{1000, 10, Order::Type::Limit});
+  quote.push(Order{1000, 10, Direction::Bid, Order::Type::Limit});
   ASSERT_EQ(10, quote.aggregated_amount());
 
   ASSERT_EQ(1000, quote.front().price());
@@ -22,12 +22,12 @@ TEST(Quote, AddAndRemoveOneOrder) {
 }
 
 TEST(Quote, AddTenOrders) {
-  Quote quote(/*price =*/ 1000);
+  Quote quote(/*price =*/ 1000, Direction::Bid);
 
   uint64_t expected_aggregated_amount = 0;
   for (uint64_t i = 1; i < 11; ++i) {
     expected_aggregated_amount += i * 10;
-    quote.push(Order{1000, i * 10, Order::Type::Limit});
+    quote.push(Order{1000, i * 10, Direction::Bid, Order::Type::Limit});
     ASSERT_EQ(expected_aggregated_amount, quote.aggregated_amount());
   }
 

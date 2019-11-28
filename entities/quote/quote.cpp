@@ -7,13 +7,19 @@ namespace market::entities {
 void Quote::push(Order&& order) {
   assert(order.price() == price());
   assert(order.type() == Order::Type::Limit);
+  assert(order.direction() == direction());
   aggregated_amount_ += order.amount();
   orders_.push(order);
 }
 
-const Order& Quote::front() const {
+Order& Quote::front() {
   assert(!empty());
   return orders_.front();
+}
+
+const Order& Quote::front() const {
+  assert(!empty());
+  return front();
 }
 
 void Quote::pop() {
