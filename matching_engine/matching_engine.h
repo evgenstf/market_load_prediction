@@ -10,22 +10,22 @@ namespace market::matching_engine {
 
 class MatchingEngine {
 public:
-  struct Parameters {
-    size_t l2_snapshot_depth;
-  };
+  /*
+    struct Parameters {
+      size_t l2_snapshot_depth;
+    };
+  */
 
   using DirectionContainer = std::map<double, entities::Quote>;
   using OrderBook = DirectionContainer[2];
 
-  MatchingEngine(Parameters parameters);
+  MatchingEngine();
 
   std::vector<entities::Trade> add_order(entities::Order&& order);
 
   entities::L1Snapshot build_l1_snapshot() const;
 
 private:
-  const Parameters parameters_;
-
   OrderBook order_book_;
 };
 
