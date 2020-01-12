@@ -1,115 +1,147 @@
-//importing libraries
+#include <cstdlib>
 #include <iostream>
-#include <boost/asio.hpp>
+#include <vector>
 #include <boost/bind.hpp>
-#include <boost/enable_shared_from_this.hpp>
+#include <boost/asio.hpp>
 
-using namespace boost::asio;
-using ip::tcp;
-using std::cout;
-using std::endl;
+using boost::asio::ip::tcp;
 
-using namespace std;
-
-class con_handler : public boost::enable_shared_from_this<con_handler>
+class session
 {
-private:
-  tcp::socket sock;
-  std::string message="Hello From Server!";
-  enum { max_length = 1024 };
-  char data[max_length];
-
 public:
-  typedef boost::shared_ptr<con_handler> pointer;
-  con_handler(boost::asio::io_service& io_service): sock(io_service){}
-// creating the pointer
-  static pointer create(boost::asio::io_service& io_service)
+  session(boost::asio::io_service& io_service)
+    : socket_(io_service)
   {
-    return pointer(new con_handler(io_service));
+     char buf[100]; sprintf(buf, "%p", this);
+     std::cout << "Session created: " << buf << std::endl;
   }
-//socket creation
+
+  ~session() {
+     char buf[100]; sprintf(buf, "%p", this);
+     std::cout << "Session destroyed: " << buf << std::endl;
+  }
+
   tcp::socket& socket()
   {
-    return sock;
+    return socket_;
   }
 
   void start()
   {
-      sock.async_read_some(
-          boost::asio::buffer(data, max_length),
-          boost::bind(&con_handler::handle_read,
-                      shared_from_this(),
-                      boost::asio::placeholders::error,
-                      boost::asio::placeholders::bytes_transferred));
-      sock.async_write_some(
-          boost::asio::buffer(message, max_length),
-          boost::bind(&con_handler::handle_write,
-                    shared_from_this(),
-                    boost::asio::placeholders::error,
-                    boost::asio::placeholders::bytes_transferred));
+    socket_.async_read_some(boost::asio::buffer(data_, max_length),
+        boost::bind(&session::handle_read, this,
+          boost::asio::placeholders::error,
+          boost::asio::placeholders::bytes_transferred));
   }
 
-  void handle_read(const boost::system::error_code& err, size_t bytes_transferred)
+  void handle_read(const boost::system::error_code& error,
+      size_t bytes_transferred)
   {
-    if (!err) {
-         cout << data << endl;
-        sock.async_read_some(
-            boost::asio::buffer(data, max_length),
-            boost::bind(&con_handler::handle_read,
-                        shared_from_this(),
-                        boost::asio::placeholders::error,
-                        boost::asio::placeholders::bytes_transferred));
-    } else {
-         std::cerr << "error: " << err.message() << std::endl;
-         sock.close();
+    if (!error)
+    {
+      std::clog << "received data: " << data_ << std::endl;
+      boost::asio::async_write(socket_,
+          boost::asio::buffer(data_, bytes_transferred),
+          boost::bind(&session::handle_write, this,
+            boost::asio::placeholders::error));
+    }
+    else
+    {
+      delete this;
     }
   }
-  void handle_write(const boost::system::error_code& err, size_t bytes_transferred)
+
+  void handle_write(const boost::system::error_code& error)
   {
-    if (!err) {
-       cout << "Server sent Hello message!"<< endl;
-    } else {
-       std::cerr << "error: " << err.message() << endl;
-       sock.close();
+    if (!error)
+    {
+      socket_.async_read_some(boost::asio::buffer(data_, max_length),
+          boost::bind(&session::handle_read, this,
+            boost::asio::placeholders::error,
+            boost::asio::placeholders::bytes_transferred));
+    }
+    else
+    {
+      delete this;
     }
   }
+
+private:
+  tcp::socket socket_;
+  enum { max_length = 1024 };
+  char data_[max_length];
 };
 
-class Server
+class server
 {
-private:
-  tcp::acceptor acceptor_;
-  void start_accept() {
-    // socket
-    con_handler::pointer connection = con_handler::create(acceptor_.get_io_service());
-
-    // asynchronous accept operation and wait for a new connection.
-    acceptor_.async_accept(connection->socket(),
-        boost::bind(&Server::handle_accept, this, connection,
+public:
+  server(boost::asio::io_service& io_service, short port)
+    : io_service_(io_service),
+      acceptor_(io_service, tcp::endpoint(tcp::v4(), port))
+  {
+    session* new_session =  new session(io_service_);
+    acceptor_.async_accept(new_session->socket(),
+        boost::bind(&server::handle_accept, this, new_session,
           boost::asio::placeholders::error));
   }
 
-public:
-  //constructor for accepting connection from client
-  Server(boost::asio::io_service& io_service): acceptor_(io_service, tcp::endpoint(tcp::v4(), 1234)) {
-    start_accept();
+  ~server() {
   }
-  void handle_accept(con_handler::pointer connection, const boost::system::error_code& err)
+
+  void handle_accept(session* new_session,
+      const boost::system::error_code& error)
   {
-    if (!err) {
-      connection->start();
+    if (!error)
+    {
+      new_session->start(); // ownership passed
+      new_session = new session(io_service_);
+      acceptor_.async_accept(new_session->socket(),
+          boost::bind(&server::handle_accept, this, new_session,
+            boost::asio::placeholders::error));
     }
-    start_accept();
+    else
+    {
+      std::cout << "Error in HA: " << error.message() << std::endl;
+    }
   }
+
+private:
+  boost::asio::io_service& io_service_;
+  tcp::acceptor acceptor_;
 };
 
-int main() {
-  try {
+/*
+int main(int argc, char* argv[])
+{
+  try
+  {
+    if (argc != 2)
+    {
+      std::cerr << "Usage: async_tcp_echo_server <port>\n";
+      return 1;
+    }
+
     boost::asio::io_service io_service;
-    Server server(io_service);
+
+    using namespace std; // For atoi.
+    server s(io_service, atoi(argv[1]));
+
     io_service.run();
-  } catch(std::exception& e) {
-    std::cerr << e.what() << endl;
   }
+  catch (std::exception& e)
+  {
+    std::cerr << "Exception: " << e.what() << "\n";
+  }
+
   return 0;
+}
+*/
+
+int main(int argc, char* argv[])
+{
+    boost::asio::io_service io_service;
+    server s(io_service, 2123);
+    io_service.run();
+
+    std::cout << "Quitting" << std::endl; return 0;
 }
