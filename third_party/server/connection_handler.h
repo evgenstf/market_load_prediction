@@ -20,9 +20,23 @@ public:
     wait_message();
   }
 
+  void send_message(const std::string& message) {
+    boost::asio::async_write(
+        socket_,
+        boost::asio::buffer(message.data(), message.size()),
+        boost::bind(
+          &ConnectionHandler::process_send_message_responce,
+          this,
+          boost::asio::placeholders::error
+        )
+    );
+  }
+
 protected:
   void process_message(char* message, size_t length) {
     std::clog << "received message: " << message << " length: " << length << std::endl;
+
+    send_message("your message received\n");
   }
 
 private:
@@ -38,24 +52,13 @@ private:
     );
   }
 
-  void send_message(const std::string& message) {
-    boost::asio::async_write(
-        socket_,
-        boost::asio::buffer(message.data(), message.size()),
-        boost::bind(
-          &ConnectionHandler::process_send_message_responce,
-          this,
-          boost::asio::placeholders::error
-        )
-    );
-  }
-
   void process_message_internal(const boost::system::error_code& error, size_t received_bytes) {
-    if (error) {
+    if (!error) {
+      process_message(buffer_, received_bytes);
+      wait_message();
+    } else {
       std::clog << "ConnectionHandler::process_message_internal received error: " << error << std::endl;
     }
-    process_message(buffer_, received_bytes);
-    wait_message();
   }
 
   void process_send_message_responce(const boost::system::error_code& error) {

@@ -1,0 +1,7 @@
+#!/bin/bash -e
+
+g++ example.cpp --std=c++11
+
+echo "start server..."
+echo
+./a.out
