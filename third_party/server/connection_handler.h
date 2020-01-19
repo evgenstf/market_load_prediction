@@ -33,7 +33,7 @@ public:
   }
 
 protected:
-  void process_message(char* message, size_t length) {
+  virtual void process_message(char* message, size_t length) {
     std::clog << "received message: " << message << " length: " << length << std::endl;
 
     send_message("your message received\n");
