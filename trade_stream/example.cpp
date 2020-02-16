@@ -10,6 +10,6 @@ void process_command_internal(market::trade_stream::Command command) {
 }
 
 int main() {
-  TradeStream trade_stream(&process_command_internal, 1234);
   std::clog << "Open trade_stream on port 1234" << std::endl;
+  TradeStream trade_stream(&process_command_internal, 1234);
 }
