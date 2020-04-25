@@ -12,8 +12,9 @@ static constexpr char kHelloMessage[] = "Hello, it is TcpServer ver 1.0.0\n";
 template<class ConnectionHandler>
 class TcpServer {
 public:
-  explicit TcpServer(size_t port):
-    acceptor_(io_service_, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port)) {}
+  explicit TcpServer(size_t port, const std::function<void(char*, size_t)>& process_message_implementation):
+    acceptor_(io_service_, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port)),
+    process_message_implementation_(process_message_implementation) {}
 
   void start() {
     wait_new_connection();
@@ -22,7 +23,7 @@ public:
 
 private:
   void wait_new_connection() {
-    auto* connection_handler = new ConnectionHandler(io_service_);
+    auto* connection_handler = new ConnectionHandler(io_service_, process_message_implementation_);
     acceptor_.async_accept(
         connection_handler->socket(),
         boost::bind(
@@ -48,6 +49,8 @@ private:
 
   boost::asio::io_service io_service_;
   boost::asio::ip::tcp::acceptor acceptor_;
+
+  std::function<void(char*, size_t)> process_message_implementation_;
 };
 
 }  // namespace third_party

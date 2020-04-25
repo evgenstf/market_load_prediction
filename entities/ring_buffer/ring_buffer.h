@@ -35,7 +35,7 @@ public:
   Item pop_when_exists() {
     std::unique_ptr<Item> item;
     while (!pop_if_exists(item));
-    return item;
+    return *item;
   }
 
   size_t size() {
