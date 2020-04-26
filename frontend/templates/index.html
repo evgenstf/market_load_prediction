@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
-{% block title %}MultiChat Example{% endblock %}
-{% block header_text %}MultiChat Example{% endblock %}
+{% block title %}ExChange{% endblock %}
+{% block header_text %}ExChange{% endblock %}
 
 {% block content %}
 
@@ -16,11 +16,6 @@
           </div>
           <div style="height:20px;">&nbsp;</div>
           <div id="user_orders">
-            <div>SELL: 10 dollars</div>
-            <div>SELL: 40 dollars</div>
-            <div>SELL: 50 dollars</div>
-            <div>BUY: 30 dollars</div>
-            <div>BUY: 70 dollars</div>
           </div>
         </td>
 
@@ -82,6 +77,25 @@
                       $("#bid_quotes").append(quotediv);
                     }
 
+                  } else if (response.type == "user_info") {
+                    $("#user_orders").html('');
+                    var statsdiv = $(
+                            "<div class='order'>" +
+                            "<h2> Balance: " + response.value.balance + "</h2>" +
+                            "<h2> Position: " + response.value.position + "</h2>" +
+                            "<h2> Free balance: " + (response.value.balance - response.value.blocked_balance) + "</h2>" +
+                            "<h2> Free position: " + (response.value.position - response.value.blocked_position) + "</h2>" +
+                            "</div>"
+                    );
+                    $("#user_orders").append(statsdiv);
+                    for (let order of response.value.orders) {
+                      var orderdiv = $(
+                              "<div class='order'>" +
+                              "<h2>" + order.direction + ' ' + order.price + ' ' + order.amount + "</h2>" +
+                              "</div>"
+                      );
+                    $("#user_orders").append(orderdiv);
+                    }
                   }
                 }
             };
@@ -118,6 +132,9 @@
             // Helpful debugging
             socket.onopen = function () {
                 console.log("Connected to chat socket");
+                socket.send(JSON.stringify({
+                    "type": "get_info"
+                }));
             };
             socket.onclose = function () {
                 console.log("Disconnected from chat socket");

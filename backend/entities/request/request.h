@@ -10,11 +10,14 @@ namespace market::entities {
 
 enum class RequestType : size_t {
   NewOrder = 0,
-  CancelOrder = 1
+  CancelOrder = 1,
+  GetInfo = 2
 };
 
 struct Request {
   RequestType type;
+
+  std::string user;
 
   Direction direction;
   double price;
@@ -27,6 +30,7 @@ std::optional<Request> request_from_string(std::string string) {
   Request request;
   try {
     auto json = tao::json::from_string(string);
+    request.user = json.at("user").as<std::string>();
     auto type = json.at("type").as<std::string>();
     if (type == "new_order") {
       request.type = RequestType::NewOrder;
@@ -43,6 +47,8 @@ std::optional<Request> request_from_string(std::string string) {
     } else if (type == "cancel_order") {
       request.type = RequestType::CancelOrder;
       request.id = json.at("id").as<std::string>();
+    } else if (type == "get_info") {
+      request.type = RequestType::GetInfo;
     } else {
       throw "unknown type: " + type;
     }

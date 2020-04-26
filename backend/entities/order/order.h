@@ -18,8 +18,21 @@ public:
     Ioc = 1
   };
 
-  Order(double price, uint64_t amount, Direction direction, Type type, std::string uuid = ""):
-      price_(price), amount_(amount), direction_(direction), type_(type), uuid_(std::move(uuid)) {
+  Order(
+      double price,
+      uint64_t amount,
+      Direction direction,
+      Type type,
+      size_t id,
+      std::string user
+  ):
+      price_(price),
+      amount_(amount),
+      direction_(direction),
+      type_(type),
+      id_(id),
+      user_(std::move(user)
+  ) {
     assert(price_ > 0);
     assert(amount_ > 0);
   }
@@ -28,7 +41,8 @@ public:
   uint64_t amount() const { return amount_; }
   Direction direction() const { return direction_; }
   Type type() const { return type_; }
-  const std::string& uuid() const { return uuid_; }
+  size_t id() const { return id_; }
+  const std::string& user() const { return user_; }
 
 private:
   void set_amount(uint64_t amount) {
@@ -39,7 +53,8 @@ private:
   uint64_t amount_;
   Direction direction_;
   Type type_;
-  std::string uuid_;
+  size_t id_;
+  std::string user_;
 
   friend class market::matching_engine::MatchingEngine;
 };

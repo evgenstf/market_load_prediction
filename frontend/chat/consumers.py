@@ -42,6 +42,9 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 
         sock = socket.socket()
         sock.connect(('localhost', 1234))
+
+        content['user'] = self.scope["user"].username
+
         sock.send(json.dumps(content).encode())
         response = sock.recv(1024).decode("utf-8")
         sock.close()

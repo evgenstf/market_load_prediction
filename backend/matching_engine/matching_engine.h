@@ -84,17 +84,25 @@ public:
       auto trade_price = trade_order.price();
       auto trade_amount = std::min(trade_order.amount(), rest_amount);
 
+      trade_order.set_amount(trade_order.amount() - trade_amount);
+      rest_amount -= trade_amount;
+
+      std::vector<size_t> fully_matched_orders;
+      if (trade_order.amount() == 0) {
+        fully_matched_orders.push_back(trade_order.id());
+      }
+      if (rest_amount == 0) {
+        fully_matched_orders.push_back(order.id());
+      }
+
       trades.push_back(
           Trade{
             trade_price,
             trade_amount,
             order.direction(),
-            std::vector<std::string>{order.uuid(), trade_order.uuid()}
+            fully_matched_orders
           }
       );
-
-      trade_order.set_amount(trade_order.amount() - trade_amount);
-      rest_amount -= trade_amount;
 
       trade_quote.update_aggregated_amount();
       if (trade_order.amount() == 0) {

@@ -60,9 +60,9 @@ public:
 
 private:
   std::string process_message(char* message, size_t length) {
+    std::clog << "received message: ";
     auto request = entities::request_from_string(std::string(message, message + length));
     if (request.has_value()) {
-      std::clog << "received request: ";
       entities::print_request(*request);
       ResponseRingBuffer response_ring_buffer;
       request_ring_buffer_->push(std::make_pair(std::move(*request), &response_ring_buffer));
