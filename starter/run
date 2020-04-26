@@ -1,5 +1,0 @@
-#!/bin/bash -e
-
-g++ starter.cpp --std=c++17 -lboost_system -pthread
-echo "binary compiled"
-./a.out

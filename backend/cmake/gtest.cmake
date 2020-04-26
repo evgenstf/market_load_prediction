@@ -1,4 +1,4 @@
-link_directories(/usr/local/lib)
+link_directories(/usr/lib)
 
 # Setup testing
 enable_testing()

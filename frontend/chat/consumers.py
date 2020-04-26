@@ -9,6 +9,7 @@ from .utils import get_room_or_error
 import json
 import socket
 
+
 class ChatConsumer(AsyncJsonWebsocketConsumer):
     """
     This chat consumer handles websocket connections for chat clients.
@@ -32,6 +33,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         else:
             # Accept the connection
             await self.accept()
+
         # Store which rooms the user has joined on this connection
         self.rooms = set()
 
@@ -41,7 +43,10 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         sock = socket.socket()
         sock.connect(('localhost', 1234))
         sock.send(json.dumps(content).encode())
-        # sock.close()
+        response = sock.recv(1024)
+        sock.close()
+
+        await self.send_json({"response": response})
 
         """
         Called when we get a text frame. Channels will JSON-decode the payload

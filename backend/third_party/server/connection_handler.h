@@ -56,9 +56,10 @@ private:
     if (!error) {
       process_message(buffer_, received_bytes);
       wait_message();
-    } else {
+    }/* else {
       std::clog << "ConnectionHandler::process_message_internal received error: " << error << std::endl;
     }
+    */
   }
 
   void process_send_message_responce(const boost::system::error_code& error) {
