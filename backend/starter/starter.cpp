@@ -1,29 +1,30 @@
 #include <iostream>
 
 #include "../entities/ring_buffer/ring_buffer.h"
-#include "../entities/command/command.h"
-#include "../command_receiver/command_receiver.h"
+#include "../entities/request/request.h"
+#include "../entities/response/response.h"
+#include "../connection_manager/connection_manager.h"
 #include "../matching_engine/matching_engine.h"
 
 using namespace std;
 using namespace market::entities;
 using namespace market::matching_engine;
-using namespace market::command_receiver;
+using namespace market::connection_manager;
 
 void execute_main_loop() {
   std::cerr << "start executing main loop" << std::endl;
 
-  RingBuffer<Command, 1000> ring_buffer;
+  RequestRingBuffer request_ring_buffer;
 
-  CommandReceiver command_receiver(1234, &ring_buffer);
-  command_receiver.start();
+  ConnectionManager connection_manager(1234, &request_ring_buffer);
+  connection_manager.start();
 
   MatchingEngine matching_engine;
 
   while (1) {
-    auto command = ring_buffer.pop_when_exists();
-    if (command.type == CommandType::NewOrder) {
-      Order order(command.price, command.amount, command.direction, Order::Type::Limit);
+    auto [request, response_ring_buffer] = request_ring_buffer.pop_when_exists();
+    if (request.type == RequestType::NewOrder) {
+      Order order(request.price, request.amount, request.direction, Order::Type::Limit);
       matching_engine.add_order(std::move(order));
       auto snapshot = matching_engine.build_l1_snapshot();
       auto best_ask_quote = snapshot.best_quote(Direction::Ask);
@@ -41,6 +42,10 @@ void execute_main_loop() {
         std::clog << "best bid: " << "None" << std::endl;
       }
 
+      Response response;
+      response.type = ResponseType::NewTrade;
+      response.trade = Trade(10, 10, Direction::Ask, {});
+      response_ring_buffer->push(std::move(response));
     }
   }
 }

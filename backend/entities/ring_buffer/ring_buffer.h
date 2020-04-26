@@ -20,6 +20,10 @@ public:
     lock_.clear();
   }
 
+  void push(Item&& item) {
+    push(std::make_unique<Item>(std::move(item)));
+  }
+
   bool pop_if_exists(std::unique_ptr<Item>& item) {
     bool popped = false;
     while (lock_.test_and_set());

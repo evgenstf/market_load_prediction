@@ -43,7 +43,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         sock = socket.socket()
         sock.connect(('localhost', 1234))
         sock.send(json.dumps(content).encode())
-        response = sock.recv(1024)
+        response = sock.recv(1024).decode("utf-8")
         sock.close()
 
         await self.send_json({"response": response})

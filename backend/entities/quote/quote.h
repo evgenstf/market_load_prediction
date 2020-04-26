@@ -15,10 +15,29 @@ public:
   uint64_t aggregated_amount() const { return aggregated_amount_; }
   bool empty() const { return orders_.empty(); }
 
-  void push(Order&& order);
-  Order& front();
-  const Order& front() const;
-  void pop();
+void push(Order&& order) {
+  assert(order.price() == price());
+  assert(order.type() == Order::Type::Limit);
+  assert(order.direction() == direction());
+  aggregated_amount_ += order.amount();
+  orders_.push(order);
+}
+
+Order& front() {
+  assert(!empty());
+  return orders_.front();
+}
+
+const Order& front() const {
+  assert(!empty());
+  return front();
+}
+
+void pop() {
+  assert(!empty());
+  aggregated_amount_ -= orders_.front().amount();
+  orders_.pop();
+}
 
 private:
   const double price_;

@@ -8,6 +8,7 @@ namespace market::entities {
 
 class Trade {
 public:
+  Trade() = default;
   Trade(
       double price,
       uint64_t amount,
