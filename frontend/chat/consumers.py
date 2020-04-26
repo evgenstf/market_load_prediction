@@ -26,6 +26,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         """
         Called when the websocket is handshaking as part of initial connection.
         """
+        # await self.join_room("123");
         # Are they logged in?
         if self.scope["user"].is_anonymous:
             # Reject the connection
@@ -47,6 +48,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         sock.close()
 
         await self.send_json(response)
+        # await self.send_room("123", json.dumps(content).encode())
 
         """
         Called when we get a text frame. Channels will JSON-decode the payload

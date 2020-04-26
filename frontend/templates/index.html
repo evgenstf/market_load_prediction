@@ -31,21 +31,9 @@
 
         <!-- order book -->
         <td>
-          <div id="ask_orders" style="background:green">
-            <div>Price: 10 Amount: 20</div>
-            <div>Price: 10 Amount: 20</div>
-            <div>Price: 10 Amount: 20</div>
-            <div>Price: 10 Amount: 20</div>
-            <div>Price: 10 Amount: 20</div>
-            <div>Price: 10 Amount: 20</div>
+          <div id="ask_quotes" style="background:green">
           </div>
-          <div id="bid_orders" style="background:red">
-            <div>Price: 5 Amount: 20</div>
-            <div>Price: 5 Amount: 20</div>
-            <div>Price: 5 Amount: 20</div>
-            <div>Price: 5 Amount: 20</div>
-            <div>Price: 5 Amount: 20</div>
-            <div>Price: 5 Amount: 20</div>
+          <div id="bid_quotes" style="background:red">
           </div>
         </td>
       </tr>
@@ -67,87 +55,34 @@
             socket.onmessage = function (message) {
                 // Decode the JSON
                 console.log("Got websocket message " + message.data);
-                var data = JSON.parse(message.data);
-                // Handle errors
-                if (data.error) {
-                    alert(data.error);
-                    return;
-                }
-                // Handle joining
-                if (data.join) {
-                    console.log("Joining room " + data.join);
-                    var roomdiv = $(
-                            "<div class='room' id='room-" + data.join + "'>" +
-                            "<h2>" + data.title + "</h2>" +
-                            "<div class='messages'></div>" +
-                            "<form><input><button>Send</button></form>" +
-                            "</div>"
-                    );
-                    // Hook up send button to send a message
-                    roomdiv.find("form").on("submit", function () {
-                        socket.send(JSON.stringify({
-                            "command": "send",
-                            "room": data.join,
-                            "message": roomdiv.find("input").val()
-                        }));
-                        roomdiv.find("input").val("");
-                        return false;
-                    });
-                    $("#chats").append(roomdiv);
-                    // Handle leaving
-                } else if (data.leave) {
-                    console.log("Leaving room " + data.leave);
-                    $("#room-" + data.leave).remove();
-                    // Handle getting a message
-                } else if (data.message || data.msg_type != 0) {
-                    var msgdiv = $("#room-" + data.room + " .messages");
-                    var ok_msg = "";
-                    // msg types are defined in chat/settings.py
-                    // Only for demo purposes is hardcoded, in production scenarios, consider call a service.
-                    switch (data.msg_type) {
-                        case 0:
-                            // Message
-                            ok_msg = "<div class='message'>" +
-                                    "<span class='username'>" + data.username + "</span>" +
-                                    "<span class='body'>" + data.message + "</span>" +
-                                    "</div>";
-                            break;
-                        case 1:
-                            // Warning / Advice messages
-                            ok_msg = "<div class='contextual-message text-warning'>" + data.message +
-                                    "</div>";
-                            break;
-                        case 2:
-                            // Alert / Danger messages
-                            ok_msg = "<div class='contextual-message text-danger'>" + data.message +
-                                    "</div>";
-                            break;
-                        case 3:
-                            // "Muted" messages
-                            ok_msg = "<div class='contextual-message text-muted'>" + data.message +
-                                    "</div>";
-                            break;
-                        case 4:
-                            // User joined room
-                            ok_msg = "<div class='contextual-message text-muted'>" + data.username +
-                                    " joined the room!" +
-                                    "</div>";
-                            break;
-                        case 5:
-                            // User left room
-                            ok_msg = "<div class='contextual-message text-muted'>" + data.username +
-                                    " left the room!" +
-                                    "</div>";
-                            break;
-                        default:
-                            console.log("Unsupported message type!");
-                            return;
-                    }
-                    msgdiv.append(ok_msg);
+                var responses = JSON.parse(JSON.parse(message.data));
 
-                    msgdiv.scrollTop(msgdiv.prop("scrollHeight"));
-                } else {
-                    console.log("Cannot handle message!");
+                for (let response of responses) {
+                  console.log("response: ", response);
+                  if (response.type == "l2_snapshot") {
+                    $("#ask_quotes").html('');
+                    $("#bid_quotes").html('');
+
+                    response.value.asks.reverse()
+                    for (let quote of response.value.asks) {
+                      var quotediv = $(
+                              "<div class='quote'>" +
+                              "<h2>" + quote.price + ' ' + quote.amount + "</h2>" +
+                              "</div>"
+                      );
+                      $("#ask_quotes").append(quotediv);
+                    }
+
+                    for (let quote of response.value.bids) {
+                      var quotediv = $(
+                              "<div class='quote'>" +
+                              "<h2>" + quote.price + ' ' + quote.amount + "</h2>" +
+                              "</div>"
+                      );
+                      $("#bid_quotes").append(quotediv);
+                    }
+
+                  }
                 }
             };
 

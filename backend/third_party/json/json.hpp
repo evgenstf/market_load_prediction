@@ -43,3 +43,33 @@
 #include "json/events.hpp"
 
 #endif
+
+/*
+namespace tao::json {
+
+template< typename T, typename V = void >
+struct my_traits
+   : public traits< T, V >
+{
+};
+
+template<typename T>
+struct my_traits< std::vector< T > >
+{
+   template< template< typename... > class Traits >
+   static void assign( basic_value< Traits >& v, const std::vector< T >& w )
+   {
+      v.prepare_array();
+      for( const auto i : w ) {
+         v.unsafe_emplace_back( i );
+      }
+   }
+};
+
+template<typename T>
+auto from_vector(const std::vector<T> values) {
+	return basic_value< my_traits >(values);
+}
+
+}
+*/

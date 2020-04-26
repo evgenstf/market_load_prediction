@@ -1,7 +1,7 @@
 #pragma once
 #include "../order/order.h"
 #include "../direction/direction.h"
-#include <queue>
+#include <deque>
 
 namespace market::entities {
 
@@ -20,7 +20,14 @@ void push(Order&& order) {
   assert(order.type() == Order::Type::Limit);
   assert(order.direction() == direction());
   aggregated_amount_ += order.amount();
-  orders_.push(order);
+  orders_.push_back(order);
+}
+
+void update_aggregated_amount() {
+  aggregated_amount_ = 0;
+  for (const auto& order : orders_) {
+    aggregated_amount_ += order.amount();
+  }
 }
 
 Order& front() {
@@ -36,14 +43,14 @@ const Order& front() const {
 void pop() {
   assert(!empty());
   aggregated_amount_ -= orders_.front().amount();
-  orders_.pop();
+  orders_.pop_front();
 }
 
 private:
   const double price_;
   Direction direction_;
   uint64_t aggregated_amount_ = 0;
-  std::queue<Order> orders_;
+  std::deque<Order> orders_;
 };
 
 }  // namespace market::entities

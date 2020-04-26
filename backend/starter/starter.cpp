@@ -29,11 +29,16 @@ void execute_main_loop() {
 
       std::vector<Response> responses;
       for (const auto& trade : trades) {
-        Response response;
-        response.type = ResponseType::NewTrade;
-        response.trade = trade;
-        responses.emplace_back(std::move(response));
+        responses.emplace_back(trade);
       }
+      responses.emplace_back(matching_engine.build_l2_snapshot());
+
+      /*
+      for (const auto& response : responses) {
+        std::clog << "response: " << response_to_string(response) << std::endl;
+      }
+      */
+
       response_ring_buffer->push(std::move(responses));
     }
   }

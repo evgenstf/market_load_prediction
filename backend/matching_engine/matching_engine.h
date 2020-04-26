@@ -1,5 +1,6 @@
 #pragma once
 #include "../entities/snapshot/l1_snapshot.h"
+#include "../entities/snapshot/l2_snapshot.h"
 #include "../entities/quote/quote.h"
 #include "../entities/trade/trade.h"
 #include "../entities/order/order.h"
@@ -25,8 +26,42 @@ public:
       size_t l2_snapshot_depth;
     };
   */
+  struct DirectionContainer {
+    DirectionContainer(Direction direction_):
+      direction(direction_) {}
 
-  using DirectionContainer = std::map<double, entities::Quote>;
+    bool empty() const { return quotes.empty(); }
+    auto begin() { return quotes.begin(); }
+    auto begin() const { return quotes.begin(); }
+
+    void erase(std::map<double, entities::Quote>::iterator iterator) {
+      quotes.erase(iterator);
+    }
+
+    auto find(double price) {
+      if (direction == Direction::Bid) {
+        return quotes.find(-price);
+      } else {
+        return quotes.find(price);
+      }
+    }
+
+    auto emplace(double price, entities::Quote quote) {
+      if (direction == Direction::Bid) {
+        return quotes.emplace(-price, quote);
+      } else {
+        return quotes.emplace(price, quote);
+      }
+    }
+
+    auto end() const {
+      return quotes.end();
+    }
+
+    std::map<double, entities::Quote> quotes;
+    Direction direction;
+  };
+
   using OrderBook = DirectionContainer[2];
 
   std::vector<Trade> add_order(Order&& order) {
@@ -39,7 +74,7 @@ public:
         rest_amount > 0 &&
         !closer_to_spread(
           order.price(),
-          order_book_[trade_direction].begin()->first,
+          order_book_[trade_direction].begin()->second.price(),
           trade_direction
         )
     ) {
@@ -61,6 +96,7 @@ public:
       trade_order.set_amount(trade_order.amount() - trade_amount);
       rest_amount -= trade_amount;
 
+      trade_quote.update_aggregated_amount();
       if (trade_order.amount() == 0) {
         trade_quote.pop();
         if (trade_quote.empty()) {
@@ -69,7 +105,7 @@ public:
       }
     }
 
-    if (order.type() == Order::Limit) {
+    if (order.type() == Order::Limit && rest_amount > 0) {
       order.set_amount(rest_amount);
       if (
           order_book_[order.direction()].find(order.price()) == order_book_[order.direction()].end()
@@ -104,8 +140,20 @@ public:
         };
   }
 
+  L2Snapshot build_l2_snapshot() const {
+    std::vector<L2Snapshot::Quote> bid_quotes;
+    for (const auto& [price, quote] : order_book_[Direction::Bid]) {
+      bid_quotes.emplace_back(L2Snapshot::Quote{quote.price(), quote.aggregated_amount()});
+    }
+    std::vector<L2Snapshot::Quote> ask_quotes;
+    for (const auto& [price, quote] : order_book_[Direction::Ask]) {
+      ask_quotes.emplace_back(L2Snapshot::Quote{quote.price(), quote.aggregated_amount()});
+    }
+    return L2Snapshot{bid_quotes, ask_quotes};
+  }
+
 private:
-  OrderBook order_book_;
+  OrderBook order_book_ = {DirectionContainer(Direction::Bid), DirectionContainer(Direction::Ask)};
 };
 
 }  // namespace market::matching_engine
