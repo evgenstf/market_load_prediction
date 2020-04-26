@@ -83,6 +83,23 @@ p {
     font-style: italic;
 }
 
+.url_input {
+  height: 40px;
+  width: 550px;
+  border: 3;
+  outline:none;
+  border-bottom: 2px solid #1976D2;
+  border-top: 2px solid #1976D2;
+  border-left: 2px solid #1976D2;
+  border-right: 2px solid #1976D2;
+  font-size: 25pt;
+  line-height: 35px;
+  text-align: center;
+  padding: 10px;
+  background: transparent;
+  border-radius: 30px;
+}
+
 .rooms li {
     padding: 5px 7px;
     background: #def;

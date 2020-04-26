@@ -5,31 +5,156 @@
 
 {% block content %}
 
-    <table background-color=yellow width=100% border=5px>
+    <table background-color=yellow width=500px align=center>
       <tr height=100%>
         <!-- user block -->
-        <td width=100px>
-          <div id="send_order">
-            <div><input type="text" size="40" placeholder="PRICE" id="price_input"></div>
-            <div><input type="text" size="40" placeholder="AMOUNT" id="amount_input"></div>
-            <div><button class="send_buy_order_button">BUY</button><button class="send_sell_order_button">SELL</button>
-          </div>
-          <div style="height:20px;">&nbsp;</div>
-          <div id="user_orders">
-          </div>
+        <td width=210px>
+          <table width=210px>
+            <tr width=210px><td width=210px>
+              <div style="margin-bottom:5px; width: 210px; padding:10px; border-radius: 5px; background-color:#eeeeee;">
+                <table width=100%>
+                  <tr width=100%>
+                    <td width=100%>
+                      <div style="margin=0px; line-height:0px; font-weight: bold; font-family: arial;">Balance</div>
+                    </td>
+                      <td width=100%>
+                        <div style="text-align:right;"  id="total_balance">
+                        </div>
+                      </td>
+                  </tr>
+                  <tr width=100%>
+                    <td width=100%>
+                      <div style="margin=0px; line-height:0px; font-weight: bold; font-family: arial;">Available</div>
+                    </td>
+                    <td width=100%>
+                      <div style="text-align:right;"  id="available_balance">
+                      </div>
+                    </td>
+                  </tr>
+
+            <tr height=10px><td height=10px>
+            </td></tr>
+                  <tr width=100%>
+                    <td width=100%>
+                      <div style="margin=0px; line-height:0px; font-weight: bold; font-family: arial;">Position</div>
+                    </td>
+                    <td width=100%>
+                      <div style="text-align:right;"  id="total_position">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr width=100%>
+                    <td width=100%>
+                      <div style="margin=0px; line-height:0px; font-weight: bold; font-family: arial;">Available</div>
+                    </td>
+                    <td width=100%>
+                      <div style="text-align:right;"  id="available_position">
+                      </div>
+                    </td>
+                  </tr>
+
+                </table>
+              </div>
+            </td></tr>
+
+            <tr><td>
+              <div id="send_order" style="width: 210px; padding:10px; border-radius: 5px; background-color:#eeeeee;">
+                <table><tr><td>
+                  <div style="height:10px; padding:5px; text-align:center; margin=0px; line-height:0px; font-weight: bold; font-family: arial;">Trade</div>
+                </td></tr>
+                <tr><td>
+                <input type="number" placeholder="PRICE" id="price_input" style="
+                  border: 2px solid #9e9e9e;
+                  font-color:12pt;
+                  outline:none;
+                  border-radius: 3px;
+                  background: transparent;
+                  text-align: center;
+                  width: 205px;
+                  height: 25px;
+                  margin-bottom:5px;
+                ">
+                <input type="number" placeholder="AMOUNT" id="amount_input" style="
+                  border: 2px solid #9e9e9e;
+                  font-color:12pt;
+                  outline:none;
+                  border-radius: 3px;
+                  background: transparent;
+                  text-align: center;
+                  width: 205px;
+                  height: 25px;
+                  margin-bottom:5px;
+                ">
+                <table width=210px>
+                  <tr>
+                    <td>
+                      <button style="width:100px" class="send_buy_order_button">BUY</button>
+                    </td>
+                    <td>
+                      <button style="width:100px" class="send_sell_order_button">SELL</button>
+                    </td>
+                  </tr>
+                </table>
+                </td></tr>
+                </table>
+              </div>
+            </td></tr>
+          </table>
         </td>
 
-        <!-- graph -->
-        <td height=100%>
-          <div style="height:200px; width:100px; background:green">&nbsp;</div>
+        <!-- user_orders -->
+        <td>
+          <table>
+            <tr><td>
+              <div style="margin-left:5px; margin-bottom:5px; width: 210px; padding:10px; border-radius: 5px; background-color:#eeeeee;">
+                <table width=100%>
+                  <tr><td>
+                    <div style="widt:100%; height:10px; padding:5px; text-align:center;  line-height:0px; font-weight: bold; font-family: arial;">My Orders</div>
+                  </td><tr>
+                  <tr><td>
+                    <div id="user_orders">
+                    </div>
+                  </td><tr>
+                </table>
+              </div>
+            </td></tr>
+            <tr><td>
+              <div style="margin-left:5px; margin-bottom:5px; width: 210px; padding:10px; border-radius: 5px; background-color:#eeeeee;">
+                <table width=100%>
+                  <tr><td>
+                    <div style="widt:100%; height:10px; padding:5px; text-align:center;  line-height:0px; font-weight: bold; font-family: arial;">My Trades</div>
+                  </td><tr>
+                  <tr><td>
+                    <div id="user_trades">
+                    </div>
+                  </td><tr>
+                </table>
+              </div>
+            </td></tr>
+          </table>
         </td>
 
         <!-- order book -->
         <td>
-          <div id="ask_quotes" style="background:green">
-          </div>
-          <div id="bid_quotes" style="background:red">
-          </div>
+          <table>
+            <tr><td>
+              <div style="margin-left:5px; margin-bottom:5px; width: 210px; padding:10px; border-radius: 5px; background-color:#eeeeee;">
+                <table width=100%>
+                  <tr><td>
+                    <div style="widt:100%; height:10px; padding:5px; text-align:center;  line-height:0px; font-weight: bold; font-family: arial;">Order Book</div>
+                  </td><tr>
+                  <tr height=300px><td>
+                    <div id="ask_quotes">
+                    </div>
+                  </td><tr>
+                  <tr height=300px><td>
+                    <div id="bid_quotes">
+                    </div>
+                  </td><tr>
+                </table>
+              </div>
+            </td></tr>
+          </table>
         </td>
       </tr>
     </table>
@@ -58,40 +183,72 @@
                     $("#ask_quotes").html('');
                     $("#bid_quotes").html('');
 
-                    response.value.asks.reverse()
-                    for (let quote of response.value.asks) {
+                    for (let i = 9; i >= 0; --i) {
                       var quotediv = $(
-                              "<div class='quote'>" +
-                              "<h2>" + quote.price + ' ' + quote.amount + "</h2>" +
+                              "<div class='order' style=\"background-color:#ef9a9a;border-radius: 2px;padding-bottom:2px;padding-top:5px;margin:5px; height:20px; text-align:center\">" +
+                              "<table width=200px><tr><td width=100px>" +
+                              "</td><td width=100px>" +
+                              "</td></tr></table>" +
                               "</div>"
                       );
+                      if (i < response.value.asks.length) {
+                        var quote = response.value.asks[i]
+                        quotediv = $(
+                                "<div class='order' style=\"background-color:#ef5350;border-radius: 2px;padding-bottom:2px;padding-top:5px;margin:5px; height:20px; text-align:center\">" +
+                                "<table width=200px><tr><td width=100px>" +
+                                quote.price +
+                                "$</td><td width=100px>" +
+                                quote.amount +
+                                "</td></tr></table>" +
+                                "</div>"
+                        );
+                      }
                       $("#ask_quotes").append(quotediv);
                     }
 
-                    for (let quote of response.value.bids) {
+                    for (let i = 0; i < 10; ++i) {
                       var quotediv = $(
-                              "<div class='quote'>" +
-                              "<h2>" + quote.price + ' ' + quote.amount + "</h2>" +
+                              "<div class='order' style=\"background-color:#a5d6a7;border-radius: 2px;padding-bottom:2px;padding-top:5px;margin:5px; height:20px; text-align:center\">" +
+                              "<table width=200px><tr><td width=100px>" +
+                              "</td><td width=100px>" +
+                              "</td></tr></table>" +
                               "</div>"
                       );
+                      if (i < response.value.bids.length) {
+                        var quote = response.value.bids[i];
+                        quotediv = $(
+                                "<div class='order' style=\"background-color:#66bb6a;border-radius: 2px;padding-bottom:2px;padding-top:5px;margin:5px; height:20px; text-align:center\">" +
+                                "<table width=200px><tr><td width=100px>" +
+                                quote.price +
+                                "$</td><td width=100px>" +
+                                quote.amount +
+                                "</td></tr></table>" +
+                                "</div>"
+                        );
+                      }
                       $("#bid_quotes").append(quotediv);
                     }
 
                   } else if (response.type == "user_info") {
                     $("#user_orders").html('');
-                    var statsdiv = $(
-                            "<div class='order'>" +
-                            "<h2> Balance: " + response.value.balance + "</h2>" +
-                            "<h2> Position: " + response.value.position + "</h2>" +
-                            "<h2> Free balance: " + (response.value.balance - response.value.blocked_balance) + "</h2>" +
-                            "<h2> Free position: " + (response.value.position - response.value.blocked_position) + "</h2>" +
-                            "</div>"
-                    );
-                    $("#user_orders").append(statsdiv);
+                    $("#total_balance").html(response.value.balance + "$");
+                    $("#available_balance").html((response.value.balance - response.value.blocked_balance) + "$");
+
+                    $("#total_position").html(response.value.position);
+                    $("#available_position").html((response.value.position - response.value.blocked_position));
+
                     for (let order of response.value.orders) {
+                      var color = '#66bb6a';
+                      if (order.direction == 'ask') {
+                        color = '#ef5350';
+                      }
                       var orderdiv = $(
-                              "<div class='order'>" +
-                              "<h2>" + order.direction + ' ' + order.price + ' ' + order.amount + "</h2>" +
+                              "<div class='order' style=\"background-color:" + color + ";border-radius: 2px;padding-bottom:2px;padding-top:5px;margin:5px; height:20px; text-align:center\">" +
+                              "<table width=200px><tr><td width=100px>" +
+                              order.price +
+                              "$</td><td width=100px>" +
+                              order.amount +
+                              "</td></tr></table>" +
                               "</div>"
                       );
                     $("#user_orders").append(orderdiv);

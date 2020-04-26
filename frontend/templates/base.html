@@ -12,7 +12,7 @@
 	{% block extra_head %}{% endblock %}
 </head>
 <body>
-	<header>
+	<header style="background-color:#90a4ae">
 		<h1>{% block header_text %}{% endblock %}</h1>
 		{% if user.is_authenticated %}
 			<a href="/accounts/logout/">Logout</a>
