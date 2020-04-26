@@ -1,0 +1,5 @@
+#!/bin/bash -e
+
+g++ example.cpp --std=c++17 -pthread
+echo "binary compiled"
+./a.out
