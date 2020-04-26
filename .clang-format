@@ -1,0 +1,61 @@
+BasedOnStyle: LLVM
+
+Standard: Cpp11
+IndentWidth: 4
+ColumnLimit: 100
+
+AccessModifierOffset: -4
+
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterCaseLabel: false
+  AfterClass: true
+  AfterControlStatement: false
+  AfterEnum: false
+  AfterFunction: true
+  AfterNamespace: false
+  AfterStruct: false
+  AfterUnion: false
+  BeforeCatch: false
+  BeforeElse: false
+  IndentBraces: false
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
+
+  # Keeps extern "C" blocks unindented.
+  AfterExternBlock: false
+
+
+FixNamespaceComments: true
+AlignAfterOpenBracket: AlwaysBreak
+AllowAllParametersOfDeclarationOnNextLine: false
+BinPackArguments: false
+BinPackParameters: false
+
+PointerAlignment: Left
+
+BreakConstructorInitializers: BeforeComma
+
+# Indent case labels.
+#  IndentCaseLabels: true
+#
+#
+#  # ANGLE likes to align things as much as possible.
+#  AlignOperands: false
+#  AlignConsecutiveAssignments: false
+#
+#  # Use 2 space negative offset for access modifiers
+#  AccessModifierOffset: -2
+#
+#  # TODO(jmadill): Decide if we want this on. Doesn't have an "all or none" mode.
+#  AllowShortCaseLabelsOnASingleLine: false
+#
+#  # Useful for spacing out functions in classes
+#  KeepEmptyLinesAtTheStartOfBlocks: true
+#
+#  # Indent nested PP directives.
+#  IndentPPDirectives: AfterHash
+#
+#  # Include blocks style
+#  IncludeBlocks: Preserve

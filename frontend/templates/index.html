@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}ExChange{% endblock %}
+{% block header_text %}ExChange{% endblock %}
+
+{% block content %}
+
+    <table background-color=yellow width=100% border=5px>
+      <tr height=100%>
+        <!-- user block -->
+        <td width=100px>
+          <div id="send_order">
+            <div><input type="text" size="40" placeholder="PRICE" id="price_input"></div>
+            <div><input type="text" size="40" placeholder="AMOUNT" id="amount_input"></div>
+            <div><button class="send_buy_order_button">BUY</button><button class="send_sell_order_button">SELL</button>
+          </div>
+          <div style="height:20px;">&nbsp;</div>
+          <div id="user_orders">
+          </div>
+        </td>
+
+        <!-- graph -->
+        <td height=100%>
+          <div style="height:200px; width:100px; background:green">&nbsp;</div>
+        </td>
+
+        <!-- order book -->
+        <td>
+          <div id="ask_quotes" style="background:green">
+          </div>
+          <div id="bid_quotes" style="background:red">
+          </div>
+        </td>
+      </tr>
+    </table>
+
+{% endblock %}
+
+
+{% block extra_body %}
+    <script>
+        $(function () {
+            // Correctly decide between ws:// and wss://
+            var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+            var ws_path = ws_scheme + '://' + window.location.host + "/chat/stream/";
+            console.log("Connecting to " + ws_path);
+            var socket = new ReconnectingWebSocket(ws_path);
+
+            // Handle incoming messages
+            socket.onmessage = function (message) {
+                // Decode the JSON
+                console.log("Got websocket message " + message.data);
+                var responses = JSON.parse(JSON.parse(message.data));
+
+                for (let response of responses) {
+                  console.log("response: ", response);
+                  if (response.type == "l2_snapshot") {
+                    $("#ask_quotes").html('');
+                    $("#bid_quotes").html('');
+
+                    response.value.asks.reverse()
+                    for (let quote of response.value.asks) {
+                      var quotediv = $(
+                              "<div class='quote'>" +
+                              "<h2>" + quote.price + ' ' + quote.amount + "</h2>" +
+                              "</div>"
+                      );
+                      $("#ask_quotes").append(quotediv);
+                    }
+
+                    for (let quote of response.value.bids) {
+                      var quotediv = $(
+                              "<div class='quote'>" +
+                              "<h2>" + quote.price + ' ' + quote.amount + "</h2>" +
+                              "</div>"
+                      );
+                      $("#bid_quotes").append(quotediv);
+                    }
+
+                  } else if (response.type == "user_info") {
+                    $("#user_orders").html('');
+                    var statsdiv = $(
+                            "<div class='order'>" +
+                            "<h2> Balance: " + response.value.balance + "</h2>" +
+                            "<h2> Position: " + response.value.position + "</h2>" +
+                            "<h2> Free balance: " + (response.value.balance - response.value.blocked_balance) + "</h2>" +
+                            "<h2> Free position: " + (response.value.position - response.value.blocked_position) + "</h2>" +
+                            "</div>"
+                    );
+                    $("#user_orders").append(statsdiv);
+                    for (let order of response.value.orders) {
+                      var orderdiv = $(
+                              "<div class='order'>" +
+                              "<h2>" + order.direction + ' ' + order.price + ' ' + order.amount + "</h2>" +
+                              "</div>"
+                      );
+                    $("#user_orders").append(orderdiv);
+                    }
+                  }
+                }
+            };
+
+            // Says if we joined a room or not by if there's a div for it
+            inRoom = function (roomId) {
+                return $("#room-" + roomId).length > 0;
+            };
+
+            // Process buy order
+            $("button.send_buy_order_button").click(function () {
+                price = document.getElementById("price_input").value;
+                amount = document.getElementById("amount_input").value;
+                socket.send(JSON.stringify({
+                    "type": "new_order",
+                    "direction": "bid",
+                    "price": parseInt(price),
+                    "amount": parseInt(amount)
+                }));
+            });
+
+            // Process sell order
+            $("button.send_sell_order_button").click(function () {
+                price = document.getElementById("price_input").value;
+                amount = document.getElementById("amount_input").value;
+                socket.send(JSON.stringify({
+                    "type": "new_order",
+                    "direction": "ask",
+                    "price": parseInt(price),
+                    "amount": parseInt(amount)
+                }));
+            });
+
+            // Helpful debugging
+            socket.onopen = function () {
+                console.log("Connected to chat socket");
+                socket.send(JSON.stringify({
+                    "type": "get_info"
+                }));
+            };
+            socket.onclose = function () {
+                console.log("Disconnected from chat socket");
+            }
+        });
+    </script>
+{% endblock %}
