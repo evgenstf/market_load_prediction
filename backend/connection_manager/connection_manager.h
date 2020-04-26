@@ -6,6 +6,7 @@
 
 #include "../third_party/server/connection_handler.h"
 #include "../third_party/server/server.h"
+#include "../third_party/json/json.hpp"
 
 #include <iostream>
 #include <optional>
@@ -14,7 +15,7 @@
 
 namespace market::connection_manager {
 
-using ResponseRingBuffer = entities::RingBuffer<entities::Response, 1000>;
+using ResponseRingBuffer = entities::RingBuffer<std::vector<entities::Response>, 1000>;
 using RequestRingBuffer =
     entities::RingBuffer<std::pair<entities::Request, ResponseRingBuffer*>, 1000>;
 
@@ -66,12 +67,21 @@ private:
       ResponseRingBuffer response_ring_buffer;
       request_ring_buffer_->push(std::make_pair(std::move(*request), &response_ring_buffer));
 
-      entities::Response response = response_ring_buffer.pop_when_exists();
+      std::vector<entities::Response> responses = response_ring_buffer.pop_when_exists();
 
-      return "received response: " + entities::response_to_string(response);
+      std::string result_json = "[";
+      for (size_t i = 0; i < responses.size(); ++i) {
+        result_json += entities::response_to_string(responses[i]);
+        if (i != responses.size() - 1) {
+          result_json += ", ";
+        }
+      }
+      result_json += "]";
+
+      return result_json;
     } else {
       std::clog << "cannot parse request" << std::endl;
-      return "cannot parse request";
+      return R"({"error": "cannot parse request"})";
     }
   }
 

@@ -46,7 +46,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         response = sock.recv(1024).decode("utf-8")
         sock.close()
 
-        await self.send_json({"response": response})
+        await self.send_json(response)
 
         """
         Called when we get a text frame. Channels will JSON-decode the payload

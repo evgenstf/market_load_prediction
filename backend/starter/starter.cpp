@@ -25,27 +25,16 @@ void execute_main_loop() {
     auto [request, response_ring_buffer] = request_ring_buffer.pop_when_exists();
     if (request.type == RequestType::NewOrder) {
       Order order(request.price, request.amount, request.direction, Order::Type::Limit);
-      matching_engine.add_order(std::move(order));
-      auto snapshot = matching_engine.build_l1_snapshot();
-      auto best_ask_quote = snapshot.best_quote(Direction::Ask);
-      auto best_bid_quote = snapshot.best_quote(Direction::Bid);
+      auto trades = matching_engine.add_order(std::move(order));
 
-      if (best_ask_quote.has_value()) {
-        std::clog << "best ask: " << best_ask_quote->price << ' ' << best_ask_quote->amount << std::endl;
-      } else {
-        std::clog << "best ask: " << "None" << std::endl;
+      std::vector<Response> responses;
+      for (const auto& trade : trades) {
+        Response response;
+        response.type = ResponseType::NewTrade;
+        response.trade = trade;
+        responses.emplace_back(std::move(response));
       }
-
-      if (best_bid_quote.has_value()) {
-        std::clog << "best bid: " << best_bid_quote->price << ' ' << best_bid_quote->amount << std::endl;
-      } else {
-        std::clog << "best bid: " << "None" << std::endl;
-      }
-
-      Response response;
-      response.type = ResponseType::NewTrade;
-      response.trade = Trade(10, 10, Direction::Ask, {});
-      response_ring_buffer->push(std::move(response));
+      response_ring_buffer->push(std::move(responses));
     }
   }
 }

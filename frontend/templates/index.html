@@ -156,13 +156,25 @@
                 return $("#room-" + roomId).length > 0;
             };
 
-            // Room join/leave
+            // Process buy order
             $("button.send_buy_order_button").click(function () {
                 price = document.getElementById("price_input").value;
                 amount = document.getElementById("amount_input").value;
                 socket.send(JSON.stringify({
                     "type": "new_order",
                     "direction": "bid",
+                    "price": parseInt(price),
+                    "amount": parseInt(amount)
+                }));
+            });
+
+            // Process sell order
+            $("button.send_sell_order_button").click(function () {
+                price = document.getElementById("price_input").value;
+                amount = document.getElementById("amount_input").value;
+                socket.send(JSON.stringify({
+                    "type": "new_order",
+                    "direction": "ask",
                     "price": parseInt(price),
                     "amount": parseInt(amount)
                 }));
