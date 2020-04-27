@@ -5,10 +5,8 @@ from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from .exceptions import ClientError
 from .utils import get_room_or_error
 
-
 import json
 import socket
-
 
 class ChatConsumer(AsyncJsonWebsocketConsumer):
     """

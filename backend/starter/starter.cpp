@@ -23,9 +23,9 @@ void execute_main_loop() {
 
   MatchingEngine matching_engine;
   UserStorage user_storage;
-  user_storage.add_user(User{"evgenstf", 5000.0, 10});
-  user_storage.add_user(User{"test_1", 5000.0, 10});
-  user_storage.add_user(User{"test_2", 5000.0, 10});
+  user_storage.add_user(User{"evgenstf", 1e18, 1000000});
+  user_storage.add_user(User{"test_1", 5000.0, 100});
+  user_storage.add_user(User{"test_2", 5000.0, 100});
 
   size_t next_order_id = 0;
 

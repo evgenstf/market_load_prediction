@@ -2,6 +2,7 @@
 
 #include <optional>
 #include <iostream>
+#include <stdlib.h>
 
 #include "../../third_party/json/json.hpp"
 #include "../direction/direction.h"
@@ -42,7 +43,7 @@ std::optional<Request> request_from_string(std::string string) {
       } else {
         throw "unknown direction: " + direction;
       }
-      request.price = json.at("price").as<int>();
+      request.price = std::atof(json.at("price").as<std::string>().c_str());
       request.amount = json.at("amount").as<int>();
     } else if (type == "cancel_order") {
       request.type = RequestType::CancelOrder;

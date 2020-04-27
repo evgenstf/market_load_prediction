@@ -174,11 +174,11 @@
             // Handle incoming messages
             socket.onmessage = function (message) {
                 // Decode the JSON
-                console.log("Got websocket message " + message.data);
+                // console.log("Got websocket message " + message.data);
                 var responses = JSON.parse(JSON.parse(message.data));
 
                 for (let response of responses) {
-                  console.log("response: ", response);
+                  // console.log("response: ", response);
                   if (response.type == "l2_snapshot") {
                     $("#ask_quotes").html('');
                     $("#bid_quotes").html('');
@@ -282,7 +282,7 @@
                 socket.send(JSON.stringify({
                     "type": "new_order",
                     "direction": "bid",
-                    "price": parseInt(price),
+                    "price": parseFloat(price).toFixed(2),
                     "amount": parseInt(amount)
                 }));
             });
@@ -294,7 +294,7 @@
                 socket.send(JSON.stringify({
                     "type": "new_order",
                     "direction": "ask",
-                    "price": parseInt(price),
+                    "price": parseFloat(price).toFixed(2),
                     "amount": parseInt(amount)
                 }));
             });
@@ -305,6 +305,11 @@
                 socket.send(JSON.stringify({
                     "type": "get_info"
                 }));
+                window.setInterval(function(){
+                  socket.send(JSON.stringify({
+                      "type": "get_info"
+                  }));
+                }, 5000);
             };
             socket.onclose = function () {
                 console.log("Disconnected from chat socket");
