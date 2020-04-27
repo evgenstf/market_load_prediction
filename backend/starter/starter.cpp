@@ -63,6 +63,9 @@ void execute_main_loop() {
       }
       */
 
+    } else if (request.type == RequestType::CancelOrder) {
+      matching_engine.cancel_order(request.cancel_order_id);
+      user_storage.process_cancel_order(request.cancel_order_id);
     }
 
     responses.emplace_back(matching_engine.build_l2_snapshot());

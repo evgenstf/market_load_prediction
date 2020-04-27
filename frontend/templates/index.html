@@ -244,15 +244,28 @@
                       }
                       var orderdiv = $(
                               "<div class='order' style=\"background-color:" + color + ";border-radius: 2px;padding-bottom:2px;padding-top:5px;margin:5px; height:20px; text-align:center\">" +
-                              "<table width=200px><tr><td width=100px>" +
+                              "<table width=210px><tr><td width=70px>" +
                               order.price +
-                              "$</td><td width=100px>" +
+                              "$</td><td width=70px>" +
                               order.amount +
+                              "$</td><td width=70px>" +
+                              "<div id=order-" + order.id + ">X</div>" +
                               "</td></tr></table>" +
                               "</div>"
                       );
-                    $("#user_orders").append(orderdiv);
+                      $("#user_orders").append(orderdiv);
+                      var cancel_div = document.getElementById('order-'+order.id);
+                      cancel_div.onclick = function () {
+                          socket.send(JSON.stringify({
+                              "type": "cancel_order",
+                              "id": order.id,
+                          }));
+                      };
                     }
+                  } else if (response.type == "request_update") {
+                    socket.send(JSON.stringify({
+                        "type": "get_info"
+                    }));
                   }
                 }
             };

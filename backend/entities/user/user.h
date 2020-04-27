@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <unordered_map>
+#include <map>
 
 #include "../order/order.h"
 
@@ -41,6 +42,9 @@ public:
   }
 
   void remove_order(size_t id) {
+    if (order_by_id_.find(id) == order_by_id_.end()) {
+      return;
+    }
     blocked_balance_ -= blocked_balance_by_order_[id];
     blocked_position_ -= blocked_position_by_order_[id];
     blocked_balance_by_order_.erase(id);
@@ -62,7 +66,7 @@ private:
   std::unordered_map<size_t, double> blocked_balance_by_order_;
   std::unordered_map<size_t, size_t> blocked_position_by_order_;
 
-  std::unordered_map<size_t, Order> order_by_id_;
+  std::map<size_t, Order> order_by_id_;
 };
 
 } // namespace market::entities

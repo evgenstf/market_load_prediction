@@ -30,6 +30,19 @@ void update_aggregated_amount() {
   }
 }
 
+void cancel_order(size_t order_id) {
+  std::deque<Order> new_orders;
+  while (!orders_.empty()) {
+    auto order = std::move(orders_.front());
+    orders_.pop_front();
+    if (order.id() != order_id) {
+      new_orders.emplace_back(std::move(order));
+    }
+  }
+  orders_ = std::move(new_orders);
+  update_aggregated_amount();
+}
+
 Order& front() {
   assert(!empty());
   return orders_.front();
