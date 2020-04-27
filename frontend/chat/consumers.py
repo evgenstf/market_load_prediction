@@ -5,10 +5,8 @@ from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from .exceptions import ClientError
 from .utils import get_room_or_error
 
-
 import json
 import socket
-
 
 class ChatConsumer(AsyncJsonWebsocketConsumer):
     """
@@ -34,6 +32,11 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             # Accept the connection
             await self.accept()
 
+        await self.channel_layer.group_add(
+            "common",
+            self.channel_name,
+        )
+
         # Store which rooms the user has joined on this connection
         self.rooms = set()
 
@@ -46,10 +49,19 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         content['user'] = self.scope["user"].username
 
         sock.send(json.dumps(content).encode())
-        response = sock.recv(1024).decode("utf-8")
+        response = sock.recv(100000).decode("utf-8")
         sock.close()
 
         await self.send_json(response)
+
+        if content['type'] != 'get_info':
+            await self.channel_layer.group_send(
+                "common",
+                {
+                    "type": "chat.message",
+                    "username": self.scope["user"].username,
+                }
+            )
 
         """
         Called when we get a text frame. Channels will JSON-decode the payload
@@ -193,11 +205,4 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         Called when someone has messaged our chat.
         """
         # Send a message down to the client
-        await self.send_json(
-            {
-                "msg_type": settings.MSG_TYPE_MESSAGE,
-                "room": event["room_id"],
-                "username": event["username"],
-                "message": event["message"],
-            },
-        )
+        await self.send_json('[{"type":"request_update"}]')

@@ -174,11 +174,11 @@
             // Handle incoming messages
             socket.onmessage = function (message) {
                 // Decode the JSON
-                console.log("Got websocket message " + message.data);
+                // console.log("Got websocket message " + message.data);
                 var responses = JSON.parse(JSON.parse(message.data));
 
                 for (let response of responses) {
-                  console.log("response: ", response);
+                  // console.log("response: ", response);
                   if (response.type == "l2_snapshot") {
                     $("#ask_quotes").html('');
                     $("#bid_quotes").html('');
@@ -244,15 +244,28 @@
                       }
                       var orderdiv = $(
                               "<div class='order' style=\"background-color:" + color + ";border-radius: 2px;padding-bottom:2px;padding-top:5px;margin:5px; height:20px; text-align:center\">" +
-                              "<table width=200px><tr><td width=100px>" +
+                              "<table width=210px><tr><td width=70px>" +
                               order.price +
-                              "$</td><td width=100px>" +
+                              "$</td><td width=70px>" +
                               order.amount +
+                              "$</td><td width=70px>" +
+                              "<div id=order-" + order.id + ">X</div>" +
                               "</td></tr></table>" +
                               "</div>"
                       );
-                    $("#user_orders").append(orderdiv);
+                      $("#user_orders").append(orderdiv);
+                      var cancel_div = document.getElementById('order-'+order.id);
+                      cancel_div.onclick = function () {
+                          socket.send(JSON.stringify({
+                              "type": "cancel_order",
+                              "id": order.id,
+                          }));
+                      };
                     }
+                  } else if (response.type == "request_update") {
+                    socket.send(JSON.stringify({
+                        "type": "get_info"
+                    }));
                   }
                 }
             };
@@ -269,7 +282,7 @@
                 socket.send(JSON.stringify({
                     "type": "new_order",
                     "direction": "bid",
-                    "price": parseInt(price),
+                    "price": parseFloat(price).toFixed(2),
                     "amount": parseInt(amount)
                 }));
             });
@@ -281,7 +294,7 @@
                 socket.send(JSON.stringify({
                     "type": "new_order",
                     "direction": "ask",
-                    "price": parseInt(price),
+                    "price": parseFloat(price).toFixed(2),
                     "amount": parseInt(amount)
                 }));
             });
@@ -292,6 +305,11 @@
                 socket.send(JSON.stringify({
                     "type": "get_info"
                 }));
+                window.setInterval(function(){
+                  socket.send(JSON.stringify({
+                      "type": "get_info"
+                  }));
+                }, 5000);
             };
             socket.onclose = function () {
                 console.log("Disconnected from chat socket");

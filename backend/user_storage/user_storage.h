@@ -67,6 +67,12 @@ public:
     return std::nullopt;
   }
 
+  void process_cancel_order(size_t order_id) {
+    for (auto& [name, user] : users_) {
+      user.remove_order(order_id);
+    }
+  }
+
   void process_trades(const std::vector<entities::Trade>& trades) {
     for (const auto& trade : trades) {
       for (const auto& order_id : trade.order_ids()) {

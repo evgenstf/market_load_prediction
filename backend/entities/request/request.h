@@ -2,6 +2,7 @@
 
 #include <optional>
 #include <iostream>
+#include <stdlib.h>
 
 #include "../../third_party/json/json.hpp"
 #include "../direction/direction.h"
@@ -23,7 +24,7 @@ struct Request {
   double price;
   int amount;
 
-  std::string id;
+  size_t cancel_order_id;
 };
 
 std::optional<Request> request_from_string(std::string string) {
@@ -42,11 +43,11 @@ std::optional<Request> request_from_string(std::string string) {
       } else {
         throw "unknown direction: " + direction;
       }
-      request.price = json.at("price").as<int>();
+      request.price = std::atof(json.at("price").as<std::string>().c_str());
       request.amount = json.at("amount").as<int>();
     } else if (type == "cancel_order") {
       request.type = RequestType::CancelOrder;
-      request.id = json.at("id").as<std::string>();
+      request.cancel_order_id = json.at("id").as<size_t>();
     } else if (type == "get_info") {
       request.type = RequestType::GetInfo;
     } else {
@@ -61,10 +62,13 @@ std::optional<Request> request_from_string(std::string string) {
 
 std::string request_to_string(const Request& request) {
   if (request.type == RequestType::NewOrder) {
-    const tao::json::value json = { {"price", request.price}, {"amount", request.amount}, {"direction", direction_to_string(request.direction) } };
+    const tao::json::value json = { {"user", request.user}, {"type", "new_order"}, {"price", request.price}, {"amount", request.amount}, {"direction", direction_to_string(request.direction) } };
     return tao::json::to_string(json);
-  } else {
-    const tao::json::value json = { {"cancel_order_id", request.id} };
+  } else if (request.type == RequestType::GetInfo) {
+    const tao::json::value json = { {"user", request.user}, {"type", "get_info"} };
+    return tao::json::to_string(json);
+  } else if (request.type == RequestType::CancelOrder) {
+    const tao::json::value json = { {"user", request.user}, {"type", "cancel_order"}, {"cancel_order_id", request.cancel_order_id} };
     return tao::json::to_string(json);
   }
 }
