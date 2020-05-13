@@ -170,10 +170,16 @@ public:
   L2Snapshot build_l2_snapshot() const {
     std::vector<L2Snapshot::Quote> bid_quotes;
     for (const auto& [price, quote] : order_book_[Direction::Bid]) {
+      if (bid_quotes.size() >= 10) {
+        break;
+      }
       bid_quotes.emplace_back(L2Snapshot::Quote{quote.price(), quote.aggregated_amount()});
     }
     std::vector<L2Snapshot::Quote> ask_quotes;
     for (const auto& [price, quote] : order_book_[Direction::Ask]) {
+      if (ask_quotes.size() >= 10) {
+        break;
+      }
       ask_quotes.emplace_back(L2Snapshot::Quote{quote.price(), quote.aggregated_amount()});
     }
     return L2Snapshot{bid_quotes, ask_quotes};

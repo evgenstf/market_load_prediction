@@ -54,6 +54,9 @@ void execute_main_loop() {
       user_storage.process_trades(trades);
 
       for (const auto& trade : trades) {
+        if (responses.size() >= 5) {
+          break;
+        }
         responses.emplace_back(trade);
       }
 
@@ -64,8 +67,12 @@ void execute_main_loop() {
       */
 
     } else if (request.type == RequestType::CancelOrder) {
-      matching_engine.cancel_order(request.cancel_order_id);
-      user_storage.process_cancel_order(request.cancel_order_id);
+      std::clog << "start cancelling order: " << request.cancel_order_id << std::endl;
+      try {
+        user_storage.process_cancel_order(request.cancel_order_id);
+        matching_engine.cancel_order(request.cancel_order_id);
+      } catch (...) {}
+      std::clog << "finished cancelling order: " << request.cancel_order_id << std::endl;
     }
 
     responses.emplace_back(matching_engine.build_l2_snapshot());

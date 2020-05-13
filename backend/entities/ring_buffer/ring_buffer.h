@@ -14,10 +14,11 @@ public:
     items_[end_] = std::move(item);
     end_ = next_index(end_);
     if (end_ == begin_) {
-      std::clog << "ring buffer overflowed. drop next begin value\n";
+      std::clog << "ring buffer overflowed. drop next begin value" << std::endl;
       begin_ = next_index(begin_);
     }
     lock_.clear();
+    std::clog << "push ring buffer size: " << size() << std::endl;
   }
 
   void push(Item&& item) {

@@ -52,6 +52,10 @@ public:
     order_by_id_.erase(id);
   }
 
+  size_t orders_count() {
+    return order_by_id_.size();
+  }
+
   const auto& order_by_id() const { return order_by_id_; }
   const std::string& name() const { return name_; }
 

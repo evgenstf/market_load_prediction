@@ -45,7 +45,11 @@ def send_new_order(price, amount, direction):
     sock = socket.socket()
     sock.connect(('localhost', 1234))
     sock.send(message)
-    response_string = sock.recv(100000).decode("utf-8")
+
+    sock.settimeout(1)
+    response_string = sock.recv(10000).decode("utf-8")
+
+    print("response_content:", response_string)
 
     response_content = json.loads(response_string)
     print("response_content:", response_content)
@@ -55,8 +59,6 @@ def send_new_order(price, amount, direction):
             for order in response['value']['orders']:
                 if abs(order['price'] - float(price)) > 100:
                     cancel_order(order['id'])
-
-
 
     sock.close()
 
@@ -71,18 +73,19 @@ def main():
 
     historical_data = []
 
-    while (1):
-        try:
-            with open(args.historical_data, newline='') as csvfile:
-                data = csv.reader(csvfile, delimiter=',')
-                cnt = 10
-                for row in data:
-                    if 'BTCUSDT' in row:
-                        send_new_order(str(float(row[2]) - 1), random() * 100 + 1, 'bid')
-                        send_new_order(str(float(row[2]) + 1), random() * 100 + 1, 'ask')
-                        time.sleep(5)
-        except:
-            pass
+    with open(args.historical_data, newline='') as csvfile:
+        data = csv.reader(csvfile, delimiter=',')
+        cnt = 200
+        for row in data:
+            cnt -= 1
+            """
+            if cnt == 0:
+                break
+            """
+            if 'BTCUSDT' in row:
+                send_new_order(str(float(row[2]) - 1), random() * 100 + 1, 'bid')
+                send_new_order(str(float(row[2]) + 1), random() * 100 + 1, 'ask')
+            time.sleep(0.01)
 
 
 if __name__ == "__main__":

@@ -32,6 +32,11 @@ public:
     }
 
     auto& user = users_.at(order.user());
+    /*
+    if (user.orders_count() > 100) {
+      return "user orders limit exceed";
+    }
+    */
     if (order.direction() == entities::Direction::Bid) {
       double price = order.price();
       int amount = order.amount();
