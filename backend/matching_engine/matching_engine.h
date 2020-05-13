@@ -131,17 +131,22 @@ public:
   }
 
   void cancel_order(size_t order_id) {
+    std::vector<double> prices_to_delete;
     for (auto& [price, quote] : order_book_[Direction::Bid]) {
       quote.cancel_order(order_id);
       if (quote.empty()) {
-        order_book_[Direction::Bid].erase(price);
+        prices_to_delete.push_back(price);
       }
     }
     for (auto& [price, quote] : order_book_[Direction::Ask]) {
       quote.cancel_order(order_id);
       if (quote.empty()) {
-        order_book_[Direction::Ask].erase(price);
+        prices_to_delete.push_back(price);
       }
+    }
+    for (auto price : prices_to_delete) {
+      order_book_[Direction::Ask].erase(price);
+      order_book_[Direction::Bid].erase(price);
     }
   }
 

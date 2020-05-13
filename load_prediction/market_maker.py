@@ -46,19 +46,22 @@ def send_new_order(price, amount, direction):
     sock.connect(('localhost', 1234))
     sock.send(message)
 
-    sock.settimeout(1)
-    response_string = sock.recv(10000).decode("utf-8")
+    try:
+        sock.settimeout(1)
+        response_string = sock.recv(10000).decode("utf-8")
 
-    print("response_content:", response_string)
+        print("response_content:", response_string)
 
-    response_content = json.loads(response_string)
-    print("response_content:", response_content)
+        response_content = json.loads(response_string)
+        print("response_content:", response_content)
 
-    for response in response_content:
-        if response['type'] == 'user_info':
-            for order in response['value']['orders']:
-                if abs(order['price'] - float(price)) > 100:
-                    cancel_order(order['id'])
+        for response in response_content:
+            if response['type'] == 'user_info':
+                for order in response['value']['orders']:
+                    if abs(order['price'] - float(price)) > 100:
+                        cancel_order(order['id'])
+    except:
+        pass
 
     sock.close()
 
@@ -73,19 +76,20 @@ def main():
 
     historical_data = []
 
-    with open(args.historical_data, newline='') as csvfile:
-        data = csv.reader(csvfile, delimiter=',')
-        cnt = 200
-        for row in data:
-            cnt -= 1
-            """
-            if cnt == 0:
-                break
-            """
-            if 'BTCUSDT' in row:
-                send_new_order(str(float(row[2]) - 1), random() * 100 + 1, 'bid')
-                send_new_order(str(float(row[2]) + 1), random() * 100 + 1, 'ask')
-            time.sleep(0.01)
+    while True:
+        with open(args.historical_data, newline='') as csvfile:
+            data = csv.reader(csvfile, delimiter=',')
+            cnt = 200
+            for row in data:
+                cnt -= 1
+                """
+                if cnt == 0:
+                    break
+                """
+                if 'BTCUSDT' in row:
+                    send_new_order(str(float(row[2]) - 1), random() * 10 + 1, 'bid')
+                    send_new_order(str(float(row[2]) + 1), random() * 10 + 1, 'ask')
+                time.sleep(0.01)
 
 
 if __name__ == "__main__":
